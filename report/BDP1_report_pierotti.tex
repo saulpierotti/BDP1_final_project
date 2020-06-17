@@ -88,7 +88,7 @@ The following lines where appended at the end of the main HTCondor configuration
 CONDOR_HOST = <Master_Node_private_IP>
 
 # Master Node config 
-DAEMON_LIST = COLLECTOR, MASTER, NEGOTIATOR, STARTD, SCHEDD
+DAEMON_LIST = COLLECTOR, MASTER, NEGOTIATOR, STARTD
 \end{lstlisting}
 
 Finally, the \texttt{condor} service was restarted with the following command:
@@ -152,16 +152,20 @@ Only the \texttt{/etc/condor/condor\_config} file was configured differently, by
 CONDOR_HOST = <Master_Node_private_IP>
 
 # Worker Node config
+DAEMON_LIST = MASTER, STARTD
+
 HOSTALLOW_READ = *
 HOSTALLOW_WRITE = *
 HOSTALLOW_ADMINISTRATOR = *
 \end{lstlisting}
 
 On the Worker Node access to the shared NFS volume was then set up.
-The following command was issued to install the required packages:
+The following command was issued to install the required packages and enable the respective services:
 
 \begin{lstlisting}
 sudo apt install nfs-common
+sudo systemctl start nfs-server
+sudo systemctl enable nfs-server
 \end{lstlisting}
 
 A new directory was then created at \texttt{/data} using the \texttt{mkdir} command.
@@ -183,5 +187,131 @@ In this way, the Worker Nodes would be easily replicable when more computational
 
 \section{Submission of a test job to the HTCondor cluster}
 For demostrating the use of the newly created cluster, a new Worker Node was instanciated from the Worker Node image, so that the cluster would contain the Master Node and 2 Worker Nodes.
+
+A new volume was created from the AWS interface from a snapshot containing test data for the BDP1 course (\texttt{snap-09ee52d8038fb8094}, BDP1\_2020).
+This snapshot contains biological data to be used for testing the infrastructure.
+It contains NGS reads from 3 different patients.
+Each patient has a folder with around 500 fasta files, with 1000 reads each.
+This data will be used for testing the infrastructure.
+This new volume was mounted on the Master Node under \texttt{/data}, substituting the empty volume used before.
+The \texttt{/etc/fstab} file was update accordingly and the \texttt{nfs-server} service restarted.
+It was then tested that the new volume was accessible from the Worker Nodes.
+
+\begin{figure}[!h]
+	\center
+	\includegraphics[width=.8\textwidth]{./images/nfs_bdp_works.png}
+\end{figure}
+
+The test job consisted in alligning 1 fasta file from 1 patient to the human genome build hg19, also stored on the shared volume.
+The BWA alignment tool was used for the scope.
+This tool takes advantage of indexing the genome for speeding up the alignment of low-divergent reads to it.
+The index for the hg19 build was already present in the volume snapshot, so there was no need to create it from scratch.
+The test reads were copied from the shared volume to the home folder of the Master Node.
+The test job file \texttt{alignment\_test.job} was created, with the following content:
+
+\begin{lstlisting}
+####################################################
+################### Alignment Test #################
+####################################################
+
+
+########### The program that will be executed #######
+
+Executable = alignment_test.py
+
+############ Input Sandbox  #########################
+
+Input      = read_1.fa
+
+transfer_input_files = read_1.fa
+
+###### Output Sandbox ###############################
+
+Log        = condor.log
+# will contain condor log
+
+Output     = condor.out
+# will contain the standard output
+
+Error      = condor.error
+# will contain the standard error
+
+############## condor control variables #############
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+
+Universe = vanilla
+
+#####################################################
+Queue
+
+\end{lstlisting}
+\pagebreak
+
+The script \texttt{alignment\_test.py} was the following:
+
+\begin{lstlisting}
+#!/usr/bin/python
+import sys,os
+from timeit import default_timer as timer
+
+start = timer()
+dbpath = "/data/BDP1_2020/hg19/"
+dbname = "hg19bwaidx"
+basename = "read_1"
+queryname = basename+".fa"
+out_name = basename 
+md5file = out_name+".md5"
+
+# install bwa
+os.system('sudo apt install -y bwa')
+
+command = "bwa aln -t 1 " + dbpath + dbname + " " + queryname + " > " + out_name + ".sai"
+print "launching command: " , command
+os.system(command)
+
+command = "bwa samse -n 10 " + dbpath + dbname + " " + out_name + ".sai " + queryname + " > " + out_name + ".sam"
+print "launching command: " , command
+os.system(command)
+
+# Checksums
+print "Creating md5sums"
+os.system("md5sum " + out_name + ".sam " + " > " + md5file)
+
+print "gzipping out text file"
+command = "gzip " + out_name + ".sam"
+print "launching command: " , command
+os.system(command)
+
+# Transfer files to shared volume
+gzipfile = out_name + '.sam.gz'
+os.system('mv '+ gzipfile + ' /data/outputs/'+ gzipfile)
+os.system('mv '+ md5file + ' /data/outputs/'+ md5file)
+
+execution_time = timer() - start
+
+print 'Total execution time: ' + str(execution_time)
+print "exiting"
+
+exit(0)
+\end{lstlisting}
+
+\section{Data Management Model}
+The general model followed would be that of transferring the executables and the read file using the HTCondor Input Sandbox.
+This is because those files are generally small and their transfer will not overload the Master Node.
+In addition, this setup allows flexibility in choosing the application to be used and the input data.
+On the contrary, the large hg19 genome and index files will be made availabe to the Worker Nodes through the shared NFS volume.
+The Output Sandbox will contain the condor log, the standard output and the standard error.
+The aligned reads will instead be compressed and put in the shared volume, so to avoid moving large data on the Output Sandbox.
+
+\subsection{Creation of a Container Image for the Application}
+A containerized version of the BWA application was built using \texttt{docker}.
+A container image for the BWA application is already available on DockerHub (\texttt{biocontainers/bwa}), but for educational purposes a new image was built from scratch.
+The Ubuntu 18.04.4 LTS Linux docker image was used as a base, and the following Dockerfile was created.
+
+\begin{lstlistings}
+
+\end{lstlistings}
 
 \end{document}
