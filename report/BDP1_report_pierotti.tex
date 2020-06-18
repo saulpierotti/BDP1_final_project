@@ -35,9 +35,10 @@ This was done also to avoid overloading the Master Node, on which the entire clu
 A shared storage space directly attached to the Master Node but available to all the Worker Nodes was also implemented using the distributed file system NFS.
 
 \section{Initialization of the instances on the AWS Cloud}
-Worker Nodes and the Master Node were both built on the same base instance configuration.
-The \texttt{t2.medium} instance type was used with a 50 Gb SSD as root storage.
-The operating system choosen is Ubuntu Server 18.04.4 LTS.
+Worker Nodes and the Master Node were both built on the similar machines.
+For the Master Node, the \texttt{t2.medium} instance type was used with a 50 Gb SSD as root storage.
+For the WOrker Nodes, the \texttt{t2.large} instance type was used with a 50 Gb SSD as root storage.
+The operating system choosen for both machine types is Ubuntu Server 18.04.4 LTS.
 The Master Node and the Worker Nodes were all instatiated in the same availability zone (\texttt{us-east-1a}), so that they would be able to communicate through private IPv4 adresses.
 The security group for the instances was configured as follows:
 
@@ -182,6 +183,12 @@ It was then verified that the shared volume was accessible from the Worker Node.
 	\includegraphics[width=\textwidth]{./images/nfs_works.png}
 \end{figure}
 
+On the Worker Nodes the application BWA was installed with the command:
+
+\begin{lstlisting}
+sudo apt install -y bwa
+\end{lstlisting}
+
 An image of the virtual machine was taken through the AWS interface.
 In this way, the Worker Nodes would be easily replicable when more computational power is needed by instaciating new virtual machines from the image, without the need for manual configuration.
 
@@ -202,7 +209,7 @@ It was then tested that the new volume was accessible from the Worker Nodes.
 	\includegraphics[width=.8\textwidth]{./images/nfs_bdp_works.png}
 \end{figure}
 
-The test job consisted in alligning 1 fasta file from 1 patient to the human genome build hg19, also stored on the shared volume.
+The test job consisted in aligning 1 fasta file from 1 patient to the human genome build hg19, also stored on the shared volume.
 The BWA alignment tool was used for the scope.
 This tool takes advantage of indexing the genome for speeding up the alignment of low-divergent reads to it.
 The index for the hg19 build was already present in the volume snapshot, so there was no need to create it from scratch.
@@ -217,13 +224,13 @@ The test job file \texttt{alignment\_test.job} was created, with the following c
 
 ########### The program that will be executed #######
 
-Executable = alignment_test.py
+Executable = alignment_test.py -
 
 ############ Input Sandbox  #########################
 
-Input      = read_1.fa
+Input      = -
 
-transfer_input_files = read_1.fa
+transfer_input_files = -
 
 ###### Output Sandbox ###############################
 
@@ -259,13 +266,10 @@ from timeit import default_timer as timer
 start = timer()
 dbpath = "/data/BDP1_2020/hg19/"
 dbname = "hg19bwaidx"
-basename = "read_1"
+basename = sys.argv[1]
 queryname = basename+".fa"
 out_name = basename 
 md5file = out_name+".md5"
-
-# install bwa
-os.system('sudo apt install -y bwa')
 
 command = "bwa aln -t 1 " + dbpath + dbname + " " + queryname + " > " + out_name + ".sai"
 print "launching command: " , command
@@ -284,18 +288,24 @@ command = "gzip " + out_name + ".sam"
 print "launching command: " , command
 os.system(command)
 
-# Transfer files to shared volume
-gzipfile = out_name + '.sam.gz'
-os.system('mv '+ gzipfile + ' /data/outputs/'+ gzipfile)
-os.system('mv '+ md5file + ' /data/outputs/'+ md5file)
+# Transfer files to shared volume and clean the Output Sandbox
+print "Moving files and clearing the Output Sandbox"
+gzipfile = out_name + ".sam.gz"
+saifile = out_name + ".sai"
+os.system("cp "+ gzipfile + " /data/outputs/"+ gzipfile)
+os.system("cp "+ md5file + " /data/outputs/"+ md5file)
+os.system("rm "+ saifile)
 
 execution_time = timer() - start
 
-print 'Total execution time: ' + str(execution_time)
+print "Total execution time: " + str(execution_time)
 print "exiting"
 
 exit(0)
 \end{lstlisting}
+
+Ten instances of this test job were run on the cluster.
+The cluster was able to successfully complete them in 
 
 \section{Data Management Model}
 The general model followed would be that of transferring the executables and the read file using the HTCondor Input Sandbox.
@@ -308,10 +318,11 @@ The aligned reads will instead be compressed and put in the shared volume, so to
 \subsection{Creation of a Container Image for the Application}
 A containerized version of the BWA application was built using \texttt{docker}.
 A container image for the BWA application is already available on DockerHub (\texttt{biocontainers/bwa}), but for educational purposes a new image was built from scratch.
-The Ubuntu 18.04.4 LTS Linux docker image was used as a base, and the following Dockerfile was created.
+The Ubuntu 18.04.4 LTS Linux docker image was used as a base.
+The following Dockerfile was created:
 
 \begin{lstlistings}
-
+The dockerfile
 \end{lstlistings}
 
 \end{document}
