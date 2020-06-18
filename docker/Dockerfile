@@ -1,4 +1,4 @@
 FROM ubuntu
-RUN sudo apt install -y bwa
-VOLUME /data:/data
-COPY alignment_test.py ~/alignment_test.py
+RUN apt update
+RUN apt install -y bwa
+COPY ./alignment_test.py ~/alignment_test.py
