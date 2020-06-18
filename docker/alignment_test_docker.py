@@ -32,12 +32,6 @@ command = "gzip " + samfile
 print "launching command: " , command
 os.system(command)
 
-# Transfer files to shared volume and clean the Output Sandbox
-print "Moving files and clearing the Output Sandbox"
-os.system("mv "+ gzipfile + " /data/outputs/"+ gzipfile)
-os.system("mv "+ md5file + " /data/outputs/"+ md5file)
-os.system("rm "+ saifile)
-
 execution_time = timer() - start
 
 print "Total execution time: " + str(execution_time)
