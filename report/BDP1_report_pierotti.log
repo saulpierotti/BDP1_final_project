@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2020.7.23)  25 JUL 2020 10:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2020.7.23)  25 JUL 2020 10:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -649,23 +649,46 @@ File: ./images/time_condor.png Graphic file (type png)
 <use ./images/time_condor.png>
 Package pdftex.def Info: ./images/time_condor.png  used on input line 329.
 (pdftex.def)             Requested size: 483.69687pt x 181.92157pt.
+
+Overfull \hbox (17.04427pt too wide) in paragraph at lines 343--343
+[]\OT1/cmr/bx/n/14.4 Creation of a Con-tainer Im-age for the Align-ment of Next
+-Generation
+ []
+
 <./images/docker_test_out.png, id=42, 839.135pt x 565.11125pt>
 File: ./images/docker_test_out.png Graphic file (type png)
 <use ./images/docker_test_out.png>
 Package pdftex.def Info: ./images/docker_test_out.png  used on input line 374.
 (pdftex.def)             Requested size: 483.69687pt x 325.73837pt.
 
-
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[7 <./images/time_condor.png>] [8 <./images/docker_test_out.png>]
+! Undefined control sequence.
+l.382 ...ve a length of up to 300 base pairs (\url
+                                                  {https://www.illumina.com/...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.382 ...is recommended for a WGS experiment (\url
+                                                  {https://www.illumina.com/...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[7 <./images/time_condor.png>] [8 <./images/docker_test_out.png>] [9]
 (./BDP1_report_pierotti.aux) ) 
 Here is how much of TeX's memory you used:
- 19152 strings out of 480478
- 387510 string characters out of 5905959
+ 19160 strings out of 480478
+ 387570 string characters out of 5905959
  1016023 words of memory out of 5000000
  34803 multiletter control sequences out of 15000+600000
- 539294 words of font info for 74 fonts, out of 8000000 for 9000
+ 539498 words of font info for 78 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  59i,6n,83p,898b,1729s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/cm-super/c
@@ -677,10 +700,10 @@ ts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public
 tt10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/
 share/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf-dis
 t/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on BDP1_report_pierotti.pdf (8 pages, 591005 bytes).
+Output written on BDP1_report_pierotti.pdf (9 pages, 592662 bytes).
 PDF statistics:
- 82 PDF objects out of 1000 (max. 8388607)
- 51 compressed objects within 1 object stream
+ 85 PDF objects out of 1000 (max. 8388607)
+ 53 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13380 words of extra memory for PDF output out of 14400 (max. 10000000)
 
