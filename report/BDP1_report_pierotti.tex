@@ -304,7 +304,7 @@ print "exiting"
 exit(0)
 \end{lstlisting}
 
-Ten instances of this test job were run on the cluster of 1 Master Node and 2 Worker Nodes.
+Ten instances of this test job were run on the cluster.
 The following outputs of \texttt{condor\_q} and \texttt{condor\_status} were recorded after submission:
 
 \begin{figure}[!h]
@@ -331,7 +331,7 @@ The time required to complete the task on a single fasta file ranged from 62.77 
 \FloatBarrier
 
 \subsection{Data Management Model}
-The general model followed would be that of transferring the executables and the input fasta files using the HTCondor Input Sandbox.
+The general data management model followed would be that of transferring the executables and the input fasta files using the HTCondor Input Sandbox.
 This is because those files are generally small and their transfer will not overload the Master Node.
 Moreover, input data are likely to be uploaded dynamically when new sequencing experiments are performed.
 This system will allow sending easily new inputs to the cluster.
@@ -340,7 +340,7 @@ The Output Sandbox will contain the condor log, the standard output, and the sta
 These files are really small and need to be immediately available to the submitter for inspecting the proceeding of the job.
 The aligned reads will instead be compressed and put in the shared volume, to avoid moving large data on the Output Sandbox.
 
-\section{Creation of a Container Image for the Alignment of NGS reads}
+\section{Creation of a Container Image for the Alignment of Next-Generation Sequencing reads}
 A containerized version of the BWA application was built using \texttt{docker}.
 A container image for the BWA application is already available on DockerHub (\texttt{biocontainers/bwa}), but for educational purposes, a new image was built from scratch.
 The Ubuntu docker image was used as a base.
@@ -375,15 +375,26 @@ The application ran successfully, producing the following output in 213.33 secon
 \end{figure}
 
 \section{Evaluation of the Resources Needed for Solving a Real Use-Case}
-A plausible non-trivial use-case that can be addressed using the HTCondor cluster developped in Section 1 is the allignment of a big number of fasta files to the human reference genome hg19.
-The scientific challenge proposed during the BDP1 course is an example of a task that can be tackled with the aforementioned infrastructure.
-This task consists in aligning NGS 554000 reads from one individual against the hg19 genome.
-Given that a single NGS-produced fasta file like the ones used for testing the infrastructure typically contains 1000 reads, the task consists in aligning 554 fasta files.
-From the tests performed, I roughly determined that the time needed to align one fasta file is around 227.3 seconds.
+A plausible non-trivial use-case that can be addressed using the HTCondor cluster developped in Section 1 is the allignment of a big number of fasta files deriving from a Next-Generation Sequencing (NGS) project to the human reference genome assembly hg19.
+It is typical to aim for a coverage of at least 30x in a human Whole-Genome Sequencing (WGS) experiment.
+Given that the human genome has a size of about 3.3 billions base pairs, this will result in a raw output from the sequencer of at least 99 billions base pairs.
+Considering also the possible occurrence of artifacts and low-quality reads, planning for a raw output of at least 100 billion base pairs is advisable.
+A single NGS read of an Illumina MySeq sequencer can have a length of up to 300 base pairs (\url{https://www.illumina.com/systems/sequencing-platforms/miseq.html}).Here I will adopt a read lenght of 150 base pairs, which is recommended for a WGS experiment (\url{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/read-length.html}).
+This will result in a total of almost 667 million reads for a single patient.
+This amounts to 667000 fasta files of 1000 reads each.
+From the tests performed, I roughly determined that the time needed to align one fasta file with 1000 reads of 150 base pairs to the hg19 assembly on a single core of the \texttt{t2.large} machine is 227.3 seconds.
 Of course this can vary based on the lenght and composition of the reads themselves.
+Thus, completing the alignment of the output of a single WGS experiment would require 151609100 seconds of CPU time on a single core of a \texttt{t2.large} AWS machine.
+
+
+
+
+The scientific challenge proposed during the BDP1 course is an example of a task that can be tackled with the aforementioned infrastructure.
+This task consists in aligning 554000 NGS reads from one individual against the hg19 genome.
+Given that a single NGS-produced fasta file typically contains 1000 reads, the task consists in aligning 554 fasta files.
 Using this rough average, we obtain that aligning the 554 fasta files from one individual will require 125924.2 seconds, around 35 hours of CPU time on a single core like the ones provisioned with the AWS \texttt{t2.large} machine.
 
-If I assume that I will use the cluster detailed in this project, with 2 Worker Nodes and one Master Node, I will have four cores at my disposal (two per Worker Node).
+If I assume that I will use the cluster detailed in this project, with two Worker Nodes and one Master Node, I will have four cores at my disposal (two per Worker Node).
 This means that the time required on the cluster will be of around 9 hours.
 
 I will now describe a breakdown of the expected costs for aligning the reads from a single patient using the AWS EC2 system with On-Demand pricing on the US East N. Virginia availability zone, on a Linux system.
