@@ -381,7 +381,7 @@ A plausible non-trivial use-case that can be addressed using the HTCondor cluste
 
 It is recommended to aim for a coverage of at least 30x in a human Whole-Genome Sequencing (WGS) experiment (\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/coverage.html}).
 Given that the human genome has a size of about 3.3 billion base pairs, this will result in a raw output from the sequencer of at least 99 billion base pairs.
-To be on the safe side, I will consider a raw output of at least 100 billion base pairs per patient in the following cost estimate.
+To be on the safe side, I will consider a raw output of 100 billion base pairs per patient in the following cost estimate.
 A single NGS read of an Illumina MySeq sequencer can have a length of up to 300 base pairs (\texttt{https://www.illumina.com/systems/sequencing-platforms/miseq.html}). Here I will consider a read length of 150 base pairs, which is recommended for a WGS experiment (\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/read-length.html}).
 Under these assumptions, almost 667 million reads for a single patient would need to be aligned.
 This amounts to about 667000 fasta files of 1000 reads each.
@@ -403,13 +403,13 @@ This will result in a cluster with a capacity of 3 patients per month.
 Follows a breakdown of the expected costs for aligning the output of 3 WGS experiments per month using the AWS EC2 system with On-Demand pricing on the US East N. Virginia availability zone, on a Linux system (\texttt{https://aws.amazon.com/pricing}).
 To date (May 2020) the \texttt{t2.large} machine costs \$ 0.0928 per hour, and the cluster will require 100 of them for the Worker Nodes.
 The \texttt{t2.medium} machine costs \$ 0.0464 per hour, and the cluster will require just 1 of them for the Master Node.
-With an expected time needed for the task of 9 days, the costs for the computation for one patient will amount to \$ 1963.
+With an expected time needed for the task of 9 days, the costs of computation for one patient will amount to \$ 1963.
 Storage on general-purpose SSD EBS devices costs \$ 0.1 per Gb per month.
 A 1 Tb disk can be used for storing the hg19 genome and index, as well as the reads of the patients.
 Therefore, storage will have a cost of \$ 100 per month.
 The total monthly cost will amount to \$ 5991.
-Costs for data movements in and out of the AWS system have been omitted.
-In a real use-case scenario, a strict security policy for dealing with medical data should be also enforced, according to local regulations.
+Note that costs for data movements in and out of the AWS system have been omitted.
+Moreover, in a real use-case scenario, a strict security policy for dealing with medical data should be also enforced, according to local regulations.
 This will likely increase the costs and the overhead required.
 
 \section{References}
