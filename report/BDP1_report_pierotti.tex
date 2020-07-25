@@ -27,14 +27,15 @@
 \maketitle
 
 \section{Creation of an HTCondor Cluster for the Alignment of NGS Reads}
-The demonstrative infrastructure described in this project consists of an HTCondor cluster of three nodes.
+The demonstrative IaaS infrastructure described in this project consists of an HTCondor cluster of three nodes.
 One node is configured as Master Node, while two nodes are configured as Worker Nodes.
 The infrastructure can be easily expanded by replicating the Worker Node instances.
 The Master Node was not used also as a Worker Node since the performance benefits and cost savings would be marginal.
 This was done also to avoid overloading the Master Node, on which the entire cluster depends.
-A shared storage space directly attached to the Master Node but available to all the Worker Nodes was also implemented using the distributed file system NFS.
+A shared storage space directly attached to the Master Node but available to all the Worker Nodes was also implemented using the distributed file system NFS (Sun Microsystems, 1984).
 
 \subsection{Initialization of the Instances on the AWS Cloud}
+The cloud service provider Amazon Web Services (AWS, \texttt{https://aws.amazon.com/}) was used for this project.
 Worker Nodes and the Master Node were both built on similar machines.
 For the Master Node, the \texttt{t2.medium} instance type was used with a 50 Gb SSD as root storage.
 For the Worker Nodes, the \texttt{t2.large} instance type was used with a 50 Gb SSD as root storage.
@@ -60,7 +61,7 @@ The PS1 prompt of the Master Node was changed so to make the node easily identif
     \includegraphics[width=\textwidth]{./images/master-ps1.png}
 \end{figure}
 
-HTCondor was then installed with the following commands:
+HTCondor (Thain D., Tannenbaum T., and Livny M., 2005) was then installed with the following commands:
 
 \begin{lstlisting}
 sudo su
@@ -99,7 +100,7 @@ sudo systemctl restart condor
 
 The NFS server was then implemented in the Master Node.
 A new 100 Gb standard magnetic volume was created from the AWS interface and attached to the Master Node.
-Fom the server, a primary partiton was initialized on the volume using \texttt{fdisk} and an \texttt{Ext4} file system was created onto it using \texttt{mkfs.ext4}.
+From the server, a primary partiton was initialized on the volume using \texttt{fdisk} and an \texttt{Ext4} file system was created onto it using \texttt{mkfs.ext4}.
 The file \texttt{/etc/fstab} of the Master Node was modified so that the machine would mount the volume automatically at boot under the newly created directory \texttt{/data}.
 The following line was appended to \texttt{/etc/fstab}:
 
@@ -199,7 +200,7 @@ This snapshot contains NGS reads from 3 different patients.
 Each patient has a folder with around 500 fasta files, with 1000 reads each.
 Part of this data will be used for testing the infrastructure.
 The new volume was mounted on the Master Node under \texttt{/data}, substituting the empty volume used before.
-The \texttt{/etc/fstab} file was update accordingly and the \texttt{nfs-server} service restarted.
+The \texttt{/etc/fstab} file was updated accordingly and the \texttt{nfs-server} service restarted.
 It was then tested that the new volume was accessible from the Worker Nodes.
 
 \begin{figure}[!h]
@@ -208,7 +209,7 @@ It was then tested that the new volume was accessible from the Worker Nodes.
 \end{figure}
 
 The test job consisted in aligning ten fasta files (\texttt{read\_1.fa} to \texttt{read\_10.fa} from patient 1) to the human genome build hg19, also stored on the shared volume.
-The BWA alignment tool was used for the scope.
+The BWA alignment tool (Li H. and Durbin R. 2009) was used for the scope.
 This tool takes advantage of indexing the genome for speeding up the alignment of low-divergent reads.
 The index for the hg19 build was already present in the volume snapshot, so there was no need to create it from scratch.
 The test fasta files were copied from the shared volume to the home folder of the Master Node.
@@ -332,7 +333,7 @@ The time required to complete the task on a single fasta file ranged from 62.77 
 \FloatBarrier
 
 \subsection{Data Management Model}
-The general data management model followed would be that of transferring the executables and the input fasta files using the HTCondor Input Sandbox.
+The general data management model followed is that of transferring the executables and the input fasta files using the HTCondor Input Sandbox.
 This is because those files are generally small and their transfer will not overload the Master Node.
 Moreover, input data are likely to be uploaded dynamically when new sequencing experiments are performed.
 This system will allow sending easily new inputs to the cluster.
@@ -342,7 +343,7 @@ These files are really small and need to be immediately available to the submitt
 The aligned reads will instead be compressed and put in the shared volume, to avoid moving large data on the Output Sandbox.
 
 \section{Creation of a Container Image for the Alignment of Next-Generation Sequencing reads}
-A containerized version of the BWA application was built using \texttt{docker}.
+A containerized version of the BWA application was built using \texttt{docker} (\texttt{https://www.docker.com/}).
 A container image for the BWA application is already available on DockerHub (\texttt{biocontainers/bwa}), but for educational purposes, a new image was built from scratch.
 The Ubuntu docker image was used as a base.
 The local docker image \texttt{bwa} was built from the following \texttt{Dockerfile}:
@@ -376,31 +377,57 @@ The application ran successfully, producing the following output in 213.33 secon
 \end{figure}
 
 \section{Evaluation of the Resources Needed for Solving a Real Use-Case}
-A plausible non-trivial use-case that can be addressed using the HTCondor cluster developped in Section 1 is the allignment of a big number of fasta files deriving from a Next-Generation Sequencing (NGS) project to the human reference genome assembly hg19.
-It is typical to aim for a coverage of at least 30x in a human Whole-Genome Sequencing (WGS) experiment.
-Given that the human genome has a size of about 3.3 billions base pairs, this will result in a raw output from the sequencer of at least 99 billions base pairs.
-Considering also the possible occurrence of artifacts and low-quality reads, planning for a raw output of at least 100 billion base pairs is advisable.
-A single NGS read of an Illumina MySeq sequencer can have a length of up to 300 base pairs (\texttt{https://www.illumina.com/systems/sequencing-platforms/miseq.html}).Here I will adopt a read lenght of 150 base pairs, which is recommended for a WGS experiment (\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/read-length.html}).
-This will result in a total of almost 667 million reads for a single patient.
-This amounts to 667000 fasta files of 1000 reads each.
-From the tests performed, I roughly determined that the time needed to align one fasta file with 1000 reads of 150 base pairs to the hg19 assembly on a single core of the AWS \texttt{t2.large} machine is 227.3 seconds.
-Thus, completing the alignment of the output of a single WGS experiment would require 151609100 seconds of CPU time on a single core.
-Of course this can vary based on the lenght and composition of the reads themselves.
+A plausible non-trivial use-case that can be addressed using the HTCondor cluster developed in Section 1 is the alignment of a large number of fasta files deriving from a Next-Generation Sequencing (NGS) run to the human reference genome assembly hg19.
+
+It is recommended to aim for a coverage of at least 30x in a human Whole-Genome Sequencing (WGS) experiment (\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/coverage.html}).
+Given that the human genome has a size of about 3.3 billion base pairs, this will result in a raw output from the sequencer of at least 99 billion base pairs.
+To be on the safe side, I will consider a raw output of at least 100 billion base pairs per patient in the following cost estimate.
+A single NGS read of an Illumina MySeq sequencer can have a length of up to 300 base pairs (\texttt{https://www.illumina.com/systems/sequencing-platforms/miseq.html}). Here I will consider a read length of 150 base pairs, which is recommended for a WGS experiment (\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/read-length.html}).
+Under these assumptions, almost 667 million reads for a single patient would need to be aligned.
+This amounts to about 667000 fasta files of 1000 reads each.
+
+I roughly determined the time needed for aligning a fasta file containing 1000 reads of 150 base pairs each to the hg19 genome assembly in Section 1.
+This amounts to 227.3 seconds on a single core of the AWS \texttt{t2.large} machine.
+Completing the alignment of the output of a single WGS experiment would require thus 151609100 seconds of CPU time on a single core.
+
 The cluster described in this project consists of one Master Node and two Worker Nodes.
 The Worker Nodes have two cores each, so the cluster can employ a total of four cores.
-In this scenario, completing the task would require 37902275 seconds, 1 year 2 months and 11 days.
-Of course this running time is not acceptable, and because of that it would be advisable to replicate the Worker Nodes, so to have more compuattional power.
-For instance, using a cluster of 1 Master Node and 100 Worker Nodes the task would be completed in less than 9 days.
+In this scenario, completing the task would require 37902275 seconds, which corresponds to 1 year 2 months, and 11 days.
+Of course, this running time is not acceptable.
+
+A more feasible approach would involve replicating the Worker Nodes to have more computational power.
+This is possible since the alignment of a read is completely independent from the alignment of other reads, and so the task can be run in parallel.
+For instance, using a cluster of 1 Master Node and 100 Worker Nodes the task could be completed in less than 9 days.
 This will result in a cluster with a capacity of 3 patients per month.
 
-Follows a breakdown of the expected costs for aligning the the output of 3 WGS experiments per month using the AWS EC2 system with On-Demand pricing on the US East N. Virginia availability zone, on a Linux system (\texttt{https://aws.amazon.com/pricing}).
-The \texttt{t2.large} machine costs \$ 0.0928 per hour, and the cluster will require 100 of them for the Worker Nodes.
+Follows a breakdown of the expected costs for aligning the output of 3 WGS experiments per month using the AWS EC2 system with On-Demand pricing on the US East N. Virginia availability zone, on a Linux system (\texttt{https://aws.amazon.com/pricing}).
+To date (May 2020) the \texttt{t2.large} machine costs \$ 0.0928 per hour, and the cluster will require 100 of them for the Worker Nodes.
 The \texttt{t2.medium} machine costs \$ 0.0464 per hour, and the cluster will require just 1 of them for the Master Node.
 With an expected time needed for the task of 9 days, the costs for the computation for one patient will amount to \$ 1963.
-Storage on general purpose SSD EBS devices costs \$ 0.1 per Gb per month.
-A 1 Tb disk can be used for storing the hg19 genome and index, as well as the reads for the patients.
+Storage on general-purpose SSD EBS devices costs \$ 0.1 per Gb per month.
+A 1 Tb disk can be used for storing the hg19 genome and index, as well as the reads of the patients.
 Therefore, storage will have a cost of \$ 100 per month.
-The total montly cost would thus amount to \$ 5991.
+The total monthly cost will amount to \$ 5991.
 Costs for data movements in and out of the AWS system have been omitted.
+In a real use-case scenario, a strict security policy for dealing with medical data should be also enforced, according to local regulations.
+This will likely increase the costs and the overhead required.
+
+\section{References}
+Li H. and Durbin R. (2009) Fast and accurate short read alignment with Burrows-Wheeler Transform. Bioinformatics, 25:1754-60. [PMID: 19451168]\\
+
+Douglas Thain, Todd Tannenbaum, and Miron Livny, "Distributed Computing in Practice: The Condor Experience" Concurrency and Computation: Practice and Experience, Vol. 17, No. 2-4, pages 323-356, February-April, 2005.\\
+
+Docker:\\
+\texttt{https://www.docker.com/}
+
+Recommended coverage for a WGS experiment:\\
+\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/coverage.html}
+
+Read lenght for a WGS experiment:\\
+\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/read-length.html}\\
+\texttt{https://www.illumina.com/systems/sequencing-platforms/miseq.html}
+
+AWS pricing:\\
+\texttt{https://aws.amazon.com/pricing}
 
 \end{document}
