@@ -5,6 +5,7 @@
 \usepackage{tcolorbox}
 \tcbuselibrary{listings,skins}
 \usepackage{microtype}
+\usepackage[htt]{hyphenat}
 \usepackage{placeins}
 \usepackage{parskip}
 \usepackage{listings}
@@ -379,7 +380,7 @@ A plausible non-trivial use-case that can be addressed using the HTCondor cluste
 It is typical to aim for a coverage of at least 30x in a human Whole-Genome Sequencing (WGS) experiment.
 Given that the human genome has a size of about 3.3 billions base pairs, this will result in a raw output from the sequencer of at least 99 billions base pairs.
 Considering also the possible occurrence of artifacts and low-quality reads, planning for a raw output of at least 100 billion base pairs is advisable.
-A single NGS read of an Illumina MySeq sequencer can have a length of up to 300 base pairs (\url{https://www.illumina.com/systems/sequencing-platforms/miseq.html}).Here I will adopt a read lenght of 150 base pairs, which is recommended for a WGS experiment (\url{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/read-length.html}).
+A single NGS read of an Illumina MySeq sequencer can have a length of up to 300 base pairs (\texttt{https://www.illumina.com/systems/sequencing-platforms/miseq.html}).Here I will adopt a read lenght of 150 base pairs, which is recommended for a WGS experiment (\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/read-length.html}).
 This will result in a total of almost 667 million reads for a single patient.
 This amounts to 667000 fasta files of 1000 reads each.
 From the tests performed, I roughly determined that the time needed to align one fasta file with 1000 reads of 150 base pairs to the hg19 assembly on a single core of the AWS \texttt{t2.large} machine is 227.3 seconds.
@@ -392,13 +393,14 @@ Of course this running time is not acceptable, and because of that it would be a
 For instance, using a cluster of 1 Master Node and 100 Worker Nodes the task would be completed in less than 9 days.
 This will result in a cluster with a capacity of 3 patients per month.
 
-I will now describe a breakdown of the expected costs for aligning the the output of a WGS experiment from a single patient using the AWS EC2 system with On-Demand pricing on the US East N. Virginia availability zone, on a Linux system.
+Follows a breakdown of the expected costs for aligning the the output of 3 WGS experiments per month using the AWS EC2 system with On-Demand pricing on the US East N. Virginia availability zone, on a Linux system (\texttt{https://aws.amazon.com/pricing}).
 The \texttt{t2.large} machine costs \$ 0.0928 per hour, and the cluster will require 100 of them for the Worker Nodes.
 The \texttt{t2.medium} machine costs \$ 0.0464 per hour, and the cluster will require just 1 of them for the Master Node.
 With an expected time needed for the task of 9 days, the costs for the computation for one patient will amount to \$ 1963.
 Storage on general purpose SSD EBS devices costs \$ 0.1 per Gb per month.
 A 1 Tb disk can be used for storing the hg19 genome and index, as well as the reads for the patients.
 Therefore, storage will have a cost of \$ 100 per month.
-Note that costs for data movements in and out of the AWS system have been omitted.
+The total montly cost would thus amount to \$ 5991.
+Costs for data movements in and out of the AWS system have been omitted.
 
 \end{document}
