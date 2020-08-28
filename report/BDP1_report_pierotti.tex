@@ -59,6 +59,7 @@ The PS1 prompt of the Master Node was changed so to make the node easily identif
     \center
     \includegraphics[width=\textwidth]{./images/master-ps1.png}
 \end{figure}
+\FloatBarrier
 
 HTCondor (Thain D., Tannenbaum T., and Livny M., 2005) was then installed with the following commands:
 
@@ -160,12 +161,10 @@ HOSTALLOW_ADMINISTRATOR = *
 \end{lstlisting}
 
 I granted to the Worker Node access to the shared NFS volume.
-The following command was issued to install the required packages and enable the respective services:
+The following command was issued to install the required packages:
 
 \begin{lstlisting}
 sudo apt install nfs-common
-sudo systemctl start nfs-server
-sudo systemctl enable nfs-server
 \end{lstlisting}
 
 A new directory was then created at \texttt{/data} using the \texttt{mkdir} command.
@@ -194,7 +193,7 @@ It would be possible to deploy new Worker Nodes by simply instantiating new virt
 
 \subsection{Submission of a Test Job to the HTCondor Cluster}
 I instantiated a new Worker Node from the relative AMI.
-Subsequently, I created a new volume through the AWS interface from a snapshot containing test data used during the BDP1 course (\texttt{snap-09ee52d8038fb8094}, BDP1\_2020).
+Subsequently, I created a new volume through the AWS interface from a snapshot containing test data used during the BDP1 course (\texttt{snap-0cfb07f302ce1b303}, BDP1\_2020).
 This snapshot contained NGS reads from 3 different patients.
 Each patient had a folder with around 500 fasta files, with 1000 reads each.
 The new volume was mounted on the Master Node under the directory \texttt{/data}, replacing the empty volume used before.
