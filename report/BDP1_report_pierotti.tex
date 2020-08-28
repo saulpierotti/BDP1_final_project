@@ -402,8 +402,8 @@ A more feasible approach would involve replicating the Worker Nodes to have more
 This is possible since the alignment of a read is independent of the alignment of other reads, and so the task can be parallelized effectively.
 For instance, the task could be completed in less than nine days using a cluster of 1 Master Node and 100 Worker Nodes.
 This will result in a cluster with a capacity of more than 3 patients per month.
-The following graphs shows the number of patients that can be completely processed as a function of time in a cluster containing 2 (orange) and 100 (blue) worker nodes.
 In a real use-case, the number of worker nodes in the cluster would be dimensioned relatively to the expected workload and to the maximum acceptable processing time.
+The following graphs shows the number of patients that can be completely processed as a function of time in a cluster containing 2 (orange) and 100 (blue) worker nodes.
 
 \begin{figure}[!h]
     \center
@@ -411,7 +411,7 @@ In a real use-case, the number of worker nodes in the cluster would be dimension
 \end{figure}
 \FloatBarrier
 
-To date (May 2020) the \texttt{t2.large} machine costs \$ 0.0928 per hour, and the proposed cluster will require 100 of them for the Worker Nodes.
+To date (May 2020) the \texttt{t2.large} machine costs \$ 0.0928 per hour, and the cluster will require 100 of them for the proposed infrastructure.
 The \texttt{t2.medium} machine costs \$ 0.0464 per hour, and the cluster will require just 1 of them for the Master Node.
 Storage on general-purpose SSD EBS devices costs \$ 0.1 per Gb per month.
 A 1 Tb disk can be used for storing the hg19 genome and index, as well as the reads of the patients.
