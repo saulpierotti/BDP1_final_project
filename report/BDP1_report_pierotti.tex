@@ -89,7 +89,11 @@ The following lines where appended at the end of the main HTCondor configuration
 CONDOR_HOST = <Master_Node_private_IP>
 
 # Master Node config 
-DAEMON_LIST = COLLECTOR, MASTER, NEGOTIATOR, STARTD
+DAEMON_LIST = COLLECTOR, MASTER, NEGOTIATOR, SCHEDD
+
+HOSTALLOW_READ = *
+HOSTALLOW_WRITE = *
+HOSTALLOW_ADMINISTRATOR = *
 \end{lstlisting}
 
 Finally, the \texttt{condor} service was restarted with the following command:
@@ -193,7 +197,7 @@ It would be possible to deploy new Worker Nodes by simply instantiating new virt
 
 \subsection{Submission of a Test Job to the HTCondor Cluster}
 I instantiated a new Worker Node from the relative AMI.
-Subsequently, I created a new volume through the AWS interface from a snapshot containing test data used during the BDP1 course (\texttt{snap-0cfb07f302ce1b303}, BDP1\_2020).
+Subsequently, I created a new volume through the AWS interface from a snapshot containing test data used during the BDP1 course (\texttt{snap-09ee52d8038fb8094}, BDP1\_2020).
 This snapshot contained NGS reads from 3 different patients.
 Each patient had a folder with around 500 fasta files, with 1000 reads each.
 The new volume was mounted on the Master Node under the directory \texttt{/data}, replacing the empty volume used before.
@@ -376,7 +380,7 @@ The application ran successfully, producing the following output in 213.33 secon
 
 \FloatBarrier
 
-\section{Evaluation of the Resources Needed for Solving a Real Use-Case}
+\section{Expected Costs}
 A plausible non-trivial use-case that can be addressed using the HTCondor cluster developed in Section 1 is the alignment of a large number of fasta files deriving from a Next-Generation Sequencing (NGS) run to the human reference genome assembly hg19.
 
 The sequencing platform manufacturer Illumina recommends aiming for a coverage of at least 30x in a human Whole-Genome Sequencing (WGS) experiment (\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/coverage.html}).
@@ -392,23 +396,34 @@ Completing the alignment of the data produced in a single WGS experiment would t
 
 The cluster described in this project consists of one Master Node and two Worker Nodes.
 The Worker Nodes have two cores each, so the cluster can employ a total of four cores.
-In this scenario, completing the task would require 37902275 seconds, which corresponds to 1 year 2 months, and 11 days.
+In this scenario, completing the task would require 37902275 seconds, which corresponds to more than 1 year.
 Of course, this running time is not acceptable for a real-world application.
-
 A more feasible approach would involve replicating the Worker Nodes to have more computational power.
 This is possible since the alignment of a read is independent of the alignment of other reads, and so the task can be parallelized effectively.
 For instance, the task could be completed in less than nine days using a cluster of 1 Master Node and 100 Worker Nodes.
-This will result in a cluster with a capacity of 3 patients per month.
+This will result in a cluster with a capacity of more than 3 patients per month.
+The following graphs shows the number of patients that can be completely processed as a function of time in a cluster containing 2 (orange) and 100 (blue) worker nodes.
+In a real use-case, the number of worker nodes in the cluster would be dimensioned relatively to the expected workload and to the maximum acceptable processing time.
 
-\section{Expected Costs}
-The scenario considered in this costs breakdown consists of aligning the output of 3 WGS experiments per month using the AWS EC2 system with On-Demand pricing on the US East N. Virginia availability zone, on a Linux system (\texttt{https://aws.amazon.com/pricing}).
-To date (May 2020) the \texttt{t2.large} machine costs \$ 0.0928 per hour, and the cluster will require 100 of them for the Worker Nodes.
+\begin{figure}[!h]
+    \center
+    \includegraphics[width=.8\textwidth]{./images/patient_graph.pdf}
+\end{figure}
+\FloatBarrier
+
+To date (May 2020) the \texttt{t2.large} machine costs \$ 0.0928 per hour, and the proposed cluster will require 100 of them for the Worker Nodes.
 The \texttt{t2.medium} machine costs \$ 0.0464 per hour, and the cluster will require just 1 of them for the Master Node.
-With an expected time needed for the task of 9 days, the costs of computation for one patient will amount to \$ 1963.
 Storage on general-purpose SSD EBS devices costs \$ 0.1 per Gb per month.
 A 1 Tb disk can be used for storing the hg19 genome and index, as well as the reads of the patients.
-Therefore, storage will have a cost of \$ 100 per month.
-The total monthly cost will amount to \$ 5991.
+The following graph depicts the costs associated with running the cluster as a function of time.
+
+\begin{figure}[!h]
+    \center
+    \includegraphics[width=.8\textwidth]{./images/cost_graph.pdf}
+\end{figure}
+
+\FloatBarrier
+
 Note that costs for data movements in and out of the AWS system have been omitted.
 Moreover, in a real use-case scenario, a strict security policy for dealing with medical data should be also enforced, according to local regulations.
 This will likely increase the costs and the overhead required.
