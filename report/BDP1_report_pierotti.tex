@@ -348,6 +348,77 @@ The aligned reads will instead be compressed and put in the shared volume, to av
 I built a containerized version of the BWA application using \texttt{Docker} (\texttt{https://www.docker.com/}).
 A container image for the BWA application was already available on DockerHub (\texttt{biocontainers/bwa}), but for educational purposes, a new image was built from scratch.
 The Ubuntu Docker image was used as a base.
+The Docker image \texttt{saulpierotti/bwa} was built from the following \texttt{Dockerfile} and pushed to DockerHub:
+
+\begin{lstlisting}
+FROM ubuntu
+COPY ./alignment_test.py alignment_test.py
+COPY ./worker_conf_condor /etc/condor/condor_config
+RUN chmod +x alignment_test.py
+RUN apt update
+RUN apt install -y wget
+RUN apt install -y gnupg
+RUN apt install -y gnupg1
+RUN apt install -y gnupg2
+RUN apt install -y bwa
+RUN apt install -y python
+RUN wget -qO - https://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | apt-key add -
+RUN echo "deb http://research.cs.wisc.edu/htcondor/ubuntu/8.8/bionic bionic contrib" >> /etc/apt/sources.list
+RUN echo "deb-src http://research.cs.wisc.edu/htcondor/ubuntu/8.8/bionic bionic contrib" >> /etc/apt/sources.list
+RUN apt update
+RUN apt install -y htcondor
+RUN systemctl start condor
+RUN systemctl enable condor
+\end{lstlisting}
+
+
+\begin{lstlisting}
+####################################################
+################### Alignment Test #################
+####################################################
+
+
+########### The program that will be executed #######
+
+Executable = alignment_test.py
+readnum = $(Process)+1
+arguments = read_$INT(readnum).fa
+
+############ Input Sandbox  #########################
+
+Input      = read_$INT(readnum).fa
+transfer_input_files = read_$INT(readnum).fa
+
+###### Output Sandbox ###############################
+
+Log        = read_$INT(readnum).log
+# will contain condor log
+
+Output     = read_$INT(readnum).out
+# will contain the standard output
+
+Error      = read_$INT(readnum).error
+# will contain the standard error
+
+############## condor control variables #############
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+
+Universe = vanilla
+
+#####################################################
+
+Queue 10
+\end{lstlisting}
+
+
+
+
+\section{OOOOOLLLLLLDDDDD Creation of a Container Image for the Alignment of Next-Generation Sequencing reads}
+I built a containerized version of the BWA application using \texttt{Docker} (\texttt{https://www.docker.com/}).
+A container image for the BWA application was already available on DockerHub (\texttt{biocontainers/bwa}), but for educational purposes, a new image was built from scratch.
+The Ubuntu Docker image was used as a base.
 The local Docker image \texttt{bwa} was built from the following \texttt{Dockerfile}:
 
 \begin{lstlisting}
