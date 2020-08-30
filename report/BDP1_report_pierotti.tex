@@ -260,6 +260,7 @@ The script \texttt{alignment\_test.py} called as executable in \texttt{alignment
 
 \begin{lstlisting}
 #!/usr/bin/python
+
 import sys,os
 from timeit import default_timer as timer
 
@@ -344,8 +345,30 @@ The Output Sandbox will contain the condor log, the standard output, and the sta
 These files are really small and need to be immediately available to the submitter for inspecting the proceeding of the job.
 The aligned reads will instead be compressed and put in the shared volume, to avoid moving large data on the Output Sandbox.
 
-\section{Creation of a Container Image for the Alignment of Next-Generation Sequencing reads}
-I built a containerized version of the BWA application using \texttt{Docker} (\texttt{https://www.docker.com/}).
+\section{Use of Docker Containers for the Task}
+Docker containers (\texttt{https://www.docker.com/}) can be used to easily ship and deploy applications.
+In this section I repeated the same task already accomplished using HTCondor and the BWA tool, but this time encapsulating the application in a Docker container.
+HTCondor was used also in this section to orchestrate the execution of batch jobs.
+The HTCondor \texttt{docker} universe was used instead of the \texttt{vanilla} universe.
+
+\subsection{Configuration of the Nodes}
+I created a virtual machine from the Worker Node AMI that I developped in the previous steps.
+I installed Docker on it with the command \texttt{sudo apt install docker.io} and I added the current user to the \texttt{docker} group with the command \texttt{sudo usermod -aG docker \$USER}.
+I added the user \texttt{condor} to the \texttt{docker} group with the command \texttt{sudo usermod -aG docker condor}.
+In order to make the shared NFS \texttt{/data} volume accessible to Docker containers, the file \texttt{/etc/condor/condor\_config} was modified by appending the following lines:
+
+\begin{lstlisting}
+# Docker configs
+DOCKER_VOLUMES = BDP1_DATA
+DOCKER_VOLUME_DIR_BDP1_DATA = /data
+DOCKER_MOUNT_VOLUMES = BDP1_DATA
+\end{lstlisting}
+
+I created a new AMI from it, so to be able to replicate the Worker Node instances as required.
+The Master Node did not need any additional configuration.
+
+\subsection{Creation of a Containerized version of the Application}
+I built a containerized version of the BWA application using \texttt{Docker}.
 A container image for the BWA application was already available on DockerHub (\texttt{biocontainers/bwa}), but for educational purposes, a new image was built from scratch.
 The Ubuntu Docker image was used as a base.
 The Docker image \texttt{saulpierotti/bwa} was built from the following \texttt{Dockerfile} and pushed to DockerHub:
@@ -353,34 +376,27 @@ The Docker image \texttt{saulpierotti/bwa} was built from the following \texttt{
 \begin{lstlisting}
 FROM ubuntu
 COPY ./alignment_test.py alignment_test.py
-COPY ./worker_conf_condor /etc/condor/condor_config
 RUN chmod +x alignment_test.py
 RUN apt update
-RUN apt install -y wget
-RUN apt install -y gnupg
-RUN apt install -y gnupg1
-RUN apt install -y gnupg2
 RUN apt install -y bwa
 RUN apt install -y python
-RUN wget -qO - https://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | apt-key add -
-RUN echo "deb http://research.cs.wisc.edu/htcondor/ubuntu/8.8/bionic bionic contrib" >> /etc/apt/sources.list
-RUN echo "deb-src http://research.cs.wisc.edu/htcondor/ubuntu/8.8/bionic bionic contrib" >> /etc/apt/sources.list
-RUN apt update
-RUN apt install -y htcondor
-RUN systemctl start condor
-RUN systemctl enable condor
 \end{lstlisting}
 
+The file \texttt{alignment\_test.py} mentioned in the Dockerfile was the same script used for the non-containerized version of the application.
+
+\subsection{Execution of the Test Job}
+I modified the test file job file in order to use the \texttt{docker} universe instead of the \texttt{vanilla} universe, and I specified into it the Docker image to be used
 
 \begin{lstlisting}
 ####################################################
-################### Alignment Test #################
+############# Alignment Test Docker ################
 ####################################################
 
 
 ########### The program that will be executed #######
 
-Executable = alignment_test.py
+docker_image = saulpierotti/bwa
+Executable = /alignment_test.py
 readnum = $(Process)+1
 arguments = read_$INT(readnum).fa
 
@@ -405,12 +421,13 @@ Error      = read_$INT(readnum).error
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 
-Universe = vanilla
+Universe = docker
 
 #####################################################
 
-Queue 10
+Queue 1
 \end{lstlisting}
+
 
 
 
