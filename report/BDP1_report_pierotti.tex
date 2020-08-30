@@ -460,7 +460,7 @@ From the Master Node, the command \texttt{condor\_status} detected the new alloc
 The job ran as planned with this new configuration.
 \begin{figure}[!h]
     \center
-    \includegraphics[width=\textwidth]{./images/condor_slot_single.png}
+    \includegraphics[width=\textwidth]{./images/condor_out_docker.png}
 \end{figure}
 \FloatBarrier
 
@@ -471,8 +471,6 @@ It would be of course possible to specify in the job description itself the pack
 With Docker containers, changing the application involves only changing the name of the Docker image to be used.
 However, the main drawback of the containerized application emerged already in my small test job: increased memory requirements due to the virtualization overheads.
 As seen in the previous example, in order to fulfill the increased requirements it is needed to either reduce the number of concurrent jobs that can run in the same machine (and thus reduce the performance of the cluster), or to choose a more performant (and expensive) instance type.
-
-
 
 \section{Expected Costs}
 A plausible non-trivial use-case that can be addressed using the HTCondor cluster developed in Section 1 is the alignment of a large number of fasta files deriving from a Next-Generation Sequencing (NGS) run to the human reference genome assembly hg19.
