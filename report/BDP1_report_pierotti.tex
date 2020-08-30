@@ -436,55 +436,43 @@ Queue 10
 \end{lstlisting}
 
 The number of Worker Nodes in the cluster was increased to 2, so to make it identical to the cluster used for the non-containerized version of the application.
-The time required to complete the task with the containerized application for a single fasta file ranged from 62.77 to 422.54 seconds, with an average of 227.7 seconds.
+The job was run on the HTCondor cluster, but after some time it was put on hold due to the exceeding of memory limits (the workers were AWS \texttt{t2.large} machines with 8 Gb of RAM).
 
 \begin{figure}[!h]
     \center
-    \includegraphics[width=\textwidth]{./images/time_condor.png}
+    \includegraphics[width=\textwidth]{./images/docker_hold.png}
+\end{figure}
+\FloatBarrier
+
+In order to solve the issue, I changed the memory reservation policy for the slots in the Worker Nodes such that 1 slot would use all the available memory, istead of sharing evenly the available memory among the 2 slots.
+This was done by appending the following line to the file \texttt{/etc/condor/condor\_config}:
+\begin{lstlisting}
+SLOT_TYPE_1 = cpus=100%, ram=100%
+NUM_SLOTS_TYPE_1 = 1
+\end{lstlisting}
+From the Master Node, the command \texttt{condor\_status} detected the new allocation policy:
+\begin{figure}[!h]
+    \center
+    \includegraphics[width=\textwidth]{./images/condor_slot_single.png}
+\end{figure}
+\FloatBarrier
+
+The job ran as planned with this new configuration.
+\begin{figure}[!h]
+    \center
+    \includegraphics[width=\textwidth]{./images/condor_slot_single.png}
 \end{figure}
 \FloatBarrier
 
 \subsection{Comparison of the Containerized Application with the Standard Application}
+The use of Docker containers can potentially offer greater flexibility in modifying the application or its configuration.
+In a traditional cluster changing the application involves creating a new AMI, terminating the worker node instances of the cluster and instanciating new worker nodes.
+It would be of course possible to specify in the job description itself the packages to be installed or modified in the Worker Nodes, but this apporach is nonetheless cumbersome and could be prohibited by the administrative policies of the cluster.
+With Docker containers, changing the application involves only changing the name of the Docker image to be used.
+However, the main drawback of the containerized application emerged already in my small test job: increased memory requirements due to the virtualization overheads.
+As seen in the previous example, in order to fulfill the increased requirements it is needed to either reduce the number of concurrent jobs that can run in the same machine (and thus reduce the performance of the cluster), or to choose a more performant (and expensive) instance type.
 
 
-
-
-
-\section{OOOOOLLLLLLDDDDD Creation of a Container Image for the Alignment of Next-Generation Sequencing reads}
-I built a containerized version of the BWA application using \texttt{Docker} (\texttt{https://www.docker.com/}).
-A container image for the BWA application was already available on DockerHub (\texttt{biocontainers/bwa}), but for educational purposes, a new image was built from scratch.
-The Ubuntu Docker image was used as a base.
-The local Docker image \texttt{bwa} was built from the following \texttt{Dockerfile}:
-
-\begin{lstlisting}
-FROM ubuntu
-RUN apt update
-RUN apt install -y bwa
-RUN apt install -y python
-COPY ./alignment_test_docker.py alignment_test_docker.py
-\end{lstlisting}
-
-I run the container using a bind-mount for the \texttt{/data} volume and starting an interactive shell.
-
-\begin{lstlisting}
-docker run -v /data:/data -ti bwa /bin/bash
-\end{lstlisting}
-
-I modified the script \texttt{alignment\_test.py} to omit the final data movement to the shared volume, and renamed it \texttt{alignment\_test\_docker.py}.
-Inside the container, I run the following command to align a sample fasta file:
-
-\begin{lstlisting}
-./alignment_test_docker.py read_1.fa
-\end{lstlisting}
-
-The application ran successfully, producing the following output in 213.33 seconds (the container was run on a Ubuntu Server 18.04.4 LTS t2.large AWS virtual machine):
-
-\begin{figure}[!h]
-    \center
-    \includegraphics[width=\textwidth]{./images/docker_test_out.png}
-\end{figure}
-
-\FloatBarrier
 
 \section{Expected Costs}
 A plausible non-trivial use-case that can be addressed using the HTCondor cluster developed in Section 1 is the alignment of a large number of fasta files deriving from a Next-Generation Sequencing (NGS) run to the human reference genome assembly hg19.
