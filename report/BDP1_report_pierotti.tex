@@ -346,17 +346,23 @@ These files are really small and need to be immediately available to the submitt
 The aligned reads will instead be compressed and put in the shared volume, to avoid moving large data on the Output Sandbox.
 
 \section{Use of Docker Containers for the Task}
-Docker containers (\texttt{https://www.docker.com/}) can be used to easily ship and deploy applications.
-In this section I repeated the same task already accomplished using HTCondor and the BWA tool, but this time encapsulating the application in a Docker container.
-HTCondor was used also in this section to orchestrate the execution of batch jobs.
-The HTCondor \texttt{docker} universe was used instead of the \texttt{vanilla} universe.
+Docker (\texttt{https://www.docker.com/}) is a container management system that can be used to easily ship and deploy applications on a variety of platforms.
+In this section I repeated the same task already accomplished, but encapsulating the BWA application in a purposes-built Docker container.
+HTCondor was still used to orchestrate the execution of jobs, taking advantage of the \texttt{docker} universe.
 
 \subsection{Configuration of the Nodes}
 I created a virtual machine from the Worker Node AMI that I developped in the previous steps.
-I installed Docker on it with the command \texttt{sudo apt install docker.io} and I added the current user to the \texttt{docker} group with the command \texttt{sudo usermod -aG docker \$USER}.
-I added the user \texttt{condor} to the \texttt{docker} group with the command \texttt{sudo usermod -aG docker condor}.
-In order to make the shared NFS \texttt{/data} volume accessible to Docker containers, the file \texttt{/etc/condor/condor\_config} was modified by appending the following lines:
+I installed Docker on it and I added the current user to the \texttt{docker} group:
+\begin{lstlisting}
+sudo apt install docker.io
+sudo usermod -aG docker \$USER
+\end{lstlisting}
+I added also the user \texttt{condor} to the \texttt{docker} group:
+\begin{lstlisting}
+sudo usermod -aG docker condor
+\end{lstlisting}
 
+In order to make the shared NFS \texttt{/data} volume accessible to Docker containers, the file \texttt{/etc/condor/condor\_config} was modified by appending the following lines to it:
 \begin{lstlisting}
 # Docker configs
 DOCKER_VOLUMES = BDP1_DATA
@@ -364,7 +370,7 @@ DOCKER_VOLUME_DIR_BDP1_DATA = /data
 DOCKER_MOUNT_VOLUMES = BDP1_DATA
 \end{lstlisting}
 
-I created a new AMI from it, so to be able to replicate the Worker Node instances as required.
+I created a new AMI from this virtual machine, so to be able to replicate the Worker Node instances as required by the application.
 The Master Node did not need any additional configuration.
 
 \subsection{Creation of a Containerized version of the Application}
@@ -385,7 +391,8 @@ RUN apt install -y python
 The file \texttt{alignment\_test.py} mentioned in the Dockerfile was the same script used for the non-containerized version of the application.
 
 \subsection{Execution of the Test Job}
-I modified the test file job file in order to use the \texttt{docker} universe instead of the \texttt{vanilla} universe, and I specified into it the Docker image to be used
+I modified the test job file in order to use the \texttt{docker} universe instead of the \texttt{vanilla} universe.
+I also added the name of to the Docker image to be used for the task (\texttt{saulpierotti/bwa}) and the path of the application executable inside the container.
 
 \begin{lstlisting}
 ####################################################
@@ -425,8 +432,19 @@ Universe = docker
 
 #####################################################
 
-Queue 1
+Queue 10
 \end{lstlisting}
+
+The number of Worker Nodes in the cluster was increased to 2, so to make it identical to the cluster used for the non-containerized version of the application.
+The time required to complete the task with the containerized application for a single fasta file ranged from 62.77 to 422.54 seconds, with an average of 227.7 seconds.
+
+\begin{figure}[!h]
+    \center
+    \includegraphics[width=\textwidth]{./images/time_condor.png}
+\end{figure}
+\FloatBarrier
+
+\subsection{Comparison of the Containerized Application with the Standard Application}
 
 
 
