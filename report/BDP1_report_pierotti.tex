@@ -30,8 +30,7 @@
 The demonstrative IaaS infrastructure described in this project consists of an HTCondor cluster of three nodes.
 One of them acts as Master Node and the remaining two nodes as Worker Nodes.
 The infrastructure is easily expandable by replicating the Worker Node instances.
-The Master Node was not used also as a Worker Node since the performance benefits and cost savings would be marginal.
-Also, this avoids overloading the Master Node, on which the entire cluster depends.
+The Master Node was not used also as a Worker Node since the performance benefits and cost savings would be marginal, at the cost of potentially overloading the Master Node.
 Finally, I implemented a shared storage space using the distributed file system NFS (Sun Microsystems, 1984) directly attached to the Master Node but available to all the Worker Nodes.
 
 \subsection{Initialization of the Instances on the AWS Cloud}
@@ -39,7 +38,7 @@ I used the cloud service provider Amazon Web Services (AWS, \texttt{https://aws.
 Worker Nodes and the Master Node were both built on similar machines.
 For the Master Node, I chose the \texttt{t2.medium} instance type with a 50 Gb SSD as root storage.
 For the Worker Nodes, I chose the \texttt{t2.large} instance type with a 50 Gb SSD as root storage.
-The operating system adopted for both machine types is Ubuntu Server 18.04.4 LTS.
+The operating system adopted for both machine types was Ubuntu Server 18.04.4 LTS.
 The Master Node and the Worker Nodes were all instantiated in the same availability zone (\texttt{us-east-1a}) so that they would be able to communicate through private IPv4 addresses.
 The security group for the instances was configured as follows:
 
@@ -112,7 +111,7 @@ The following line was appended to \texttt{/etc/fstab}:
 </new_volume/partiton>              /data    ext4   defaults                0 0
 \end{lstlisting}
 
-The following commands were then issued, so to install the appropriate packages:
+The following commands were then issued to install the appropriate packages:
 
 \begin{lstlisting}
 sudo apt install nfs-kernel-server
@@ -131,7 +130,7 @@ sudo chown nobody:nogroup /data
 sudo chmod 777 /data
 \end{lstlisting}
 
-The \texttt{/data} folder was so made available to all the Worker Nodes on the address range \texttt{172.31.0.0/16}.
+The \texttt{/data} folder was exposed to all the Worker Nodes on the address range \texttt{172.31.0.0/16}.
 This configuration does not pose a significant security risk since all the machines belong to the same Virtual Private Cloud (VPC). Only machines instantiated on the same VPC could access the exposed volume.
 Moreover, this configuration grants immediate access to the volume to additional Worker Nodes instantiated in the same VPC.
 I created a mock file on the \texttt{/data} folder so to be able to recognize the volume when mounted.
@@ -435,7 +434,7 @@ Universe = docker
 Queue 10
 \end{lstlisting}
 
-The number of Worker Nodes in the cluster was increased to 2, so to make it identical to the cluster used for the non-containerized version of the application.
+The number of Worker Nodes in the cluster was increased to two, so to make it identical to the cluster used for the non-containerized version of the application.
 The job was run on the HTCondor cluster, but after some time it was put on hold due to the exceeding of memory limits (the workers were AWS \texttt{t2.large} machines with 8 Gb of RAM).
 
 \begin{figure}[!h]
@@ -444,7 +443,7 @@ The job was run on the HTCondor cluster, but after some time it was put on hold 
 \end{figure}
 \FloatBarrier
 
-In order to solve the issue, I changed the memory reservation policy for the slots in the Worker Nodes such that 1 slot would use all the available memory, istead of sharing evenly the available memory among the 2 slots.
+In order to solve the issue, I changed the memory reservation policy for the slots in the Worker Nodes such that one slot would use all the available memory and CPU, istead of sharing evenly the resources among the two slots.
 This was done by appending the following line to the file \texttt{/etc/condor/condor\_config}:
 \begin{lstlisting}
 SLOT_TYPE_1 = cpus=100%, ram=100%
@@ -457,20 +456,28 @@ From the Master Node, the command \texttt{condor\_status} detected the new alloc
 \end{figure}
 \FloatBarrier
 
-The job ran as planned with this new configuration.
+The job ran as planned with this new configuration, producing the expected output files in 131.8 seconds on average.
 \begin{figure}[!h]
     \center
-    \includegraphics[width=\textwidth]{./images/condor_out_docker.png}
+    \includegraphics[width=\textwidth]{./images/docker_time.png}
 \end{figure}
 \FloatBarrier
 
-\subsection{Comparison of the Containerized Application with the Standard Application}
+\subsection{Comparison of the Containerized Application with the Native Application}
 The use of Docker containers can potentially offer greater flexibility in modifying the application or its configuration.
-In a traditional cluster changing the application involves creating a new AMI, terminating the worker node instances of the cluster and instanciating new worker nodes.
-It would be of course possible to specify in the job description itself the packages to be installed or modified in the Worker Nodes, but this apporach is nonetheless cumbersome and could be prohibited by the administrative policies of the cluster.
+With the native implementation changing the application involves creating a new AMI, terminating the Worker Node instances of the cluster and instanciating new Worker Nodes from the new AMI.
+In a real-world scenario it could be possible to specify in the job description itself the packages to be installed or modified in the Worker Nodes, but this apporach is nonetheless cumbersome and could be prohibited by the administrative policies of the cluster.
 With Docker containers, changing the application involves only changing the name of the Docker image to be used.
-However, the main drawback of the containerized application emerged already in my small test job: increased memory requirements due to the virtualization overheads.
-As seen in the previous example, in order to fulfill the increased requirements it is needed to either reduce the number of concurrent jobs that can run in the same machine (and thus reduce the performance of the cluster), or to choose a more performant (and expensive) instance type.
+However, the main drawback of the containerized application is increased resource requirements.
+This point emerged even in my small test job, where the memory available to the slots was not sufficient for executing the task.
+The increased resource consumption of the containerized application can be attributed to the virtualization overhead.
+This increased overhead translates in either a less performant application (less jobs can be run in a given amount of time) or a more expensive infrastructure (for instance I may have choosen to use an instance type with more memory).
+One way to partially mitigate the virtualization overhead is to include in the Docker image only the components that are strictly required by the application.
+Using as a base the smallest possible image is another viable solution (for instance I could have used Alpine Linux instead of Ubuntu as a base image).
+
+The raw performaces on the test job of the native and containerized application are not directly comparable, since for the native version each core of the Worker Nodes was assigned to a different slot and the available memory was split equally among them, while for the containerized version all the available resources were collected in a single slot.
+In the containerized version the running time of the application is thus smaller because the slots used were more performant than the ones used for the native application.
+It is important to note also that with the cluster configuration used for the native application two jobs can be run at the same time in each Worker Node, while with the configuration used for the containerized application only one job at a time can be run in each node.
 
 \section{Expected Costs}
 A plausible non-trivial use-case that can be addressed using the HTCondor cluster developed in Section 1 is the alignment of a large number of fasta files deriving from a Next-Generation Sequencing (NGS) run to the human reference genome assembly hg19.

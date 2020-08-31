@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2020.7.23)  30 AUG 2020 18:59
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2020.8.31)  31 AUG 2020 11:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -706,12 +706,12 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 <./images/security-group.png, id=4, 1269.74374pt x 530.98375pt>
 File: ./images/security-group.png Graphic file (type png)
 <use ./images/security-group.png>
-Package pdftex.def Info: ./images/security-group.png  used on input line 48.
+Package pdftex.def Info: ./images/security-group.png  used on input line 47.
 (pdftex.def)             Requested size: 483.69687pt x 202.27014pt.
 <./images/master-ps1.png, id=5, 1368.11125pt x 132.495pt>
 File: ./images/master-ps1.png Graphic file (type png)
 <use ./images/master-ps1.png>
-Package pdftex.def Info: ./images/master-ps1.png  used on input line 60.
+Package pdftex.def Info: ./images/master-ps1.png  used on input line 59.
 (pdftex.def)             Requested size: 483.69687pt x 46.84297pt.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
@@ -721,31 +721,31 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./images/security-group.pn
 g>]
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <9> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 69.
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 68.
 <./images/condor_installed.png, id=16, 1214.5375pt x 428.60126pt>
 File: ./images/condor_installed.png Graphic file (type png)
 <use ./images/condor_installed.png>
-Package pdftex.def Info: ./images/condor_installed.png  used on input line 81.
+Package pdftex.def Info: ./images/condor_installed.png  used on input line 80.
 (pdftex.def)             Requested size: 483.69687pt x 170.69191pt.
  [2 <./images/master-ps1.png> <./images/condor_installed.png>]
 <./images/worker-ps1.png, id=22, 1370.11874pt x 84.315pt>
 File: ./images/worker-ps1.png Graphic file (type png)
 <use ./images/worker-ps1.png>
-Package pdftex.def Info: ./images/worker-ps1.png  used on input line 149.
+Package pdftex.def Info: ./images/worker-ps1.png  used on input line 148.
 (pdftex.def)             Requested size: 483.69687pt x 29.76541pt.
 <./images/nfs_works.png, id=23, 1002.74625pt x 164.615pt>
 File: ./images/nfs_works.png Graphic file (type png)
 <use ./images/nfs_works.png>
-Package pdftex.def Info: ./images/nfs_works.png  used on input line 185.
+Package pdftex.def Info: ./images/nfs_works.png  used on input line 184.
 (pdftex.def)             Requested size: 483.69687pt x 79.40614pt.
  [3 <./images/worker-ps1.png> <./images/nfs_works.png>]
 <./images/nfs_bdp_works.png, id=27, 682.55pt x 154.5775pt>
 File: ./images/nfs_bdp_works.png Graphic file (type png)
 <use ./images/nfs_bdp_works.png>
-Package pdftex.def Info: ./images/nfs_bdp_works.png  used on input line 209.
+Package pdftex.def Info: ./images/nfs_bdp_works.png  used on input line 208.
 (pdftex.def)             Requested size: 386.95897pt x 87.63599pt.
 LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 
-228.
+227.
 
 (/usr/share/texmf-dist/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
@@ -758,13 +758,13 @@ Package microtype Info: Loading generic protrusion settings for font family
 <./images/condor_q.png, id=32, 1136.245pt x 268.00125pt>
 File: ./images/condor_q.png Graphic file (type png)
 <use ./images/condor_q.png>
-Package pdftex.def Info: ./images/condor_q.png  used on input line 316.
+Package pdftex.def Info: ./images/condor_q.png  used on input line 315.
 (pdftex.def)             Requested size: 483.69687pt x 114.08917pt.
 <./images/condor_status_busy.png, id=33, 853.1875pt x 295.1025pt>
 File: ./images/condor_status_busy.png Graphic file (type png)
 <use ./images/condor_status_busy.png>
 Package pdftex.def Info: ./images/condor_status_busy.png  used on input line 31
-7.
+6.
 (pdftex.def)             Requested size: 483.69687pt x 167.30507pt.
 
 
@@ -774,20 +774,20 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <./images/condor_test_out.png, id=37, 629.35126pt x 505.89pt>
 File: ./images/condor_test_out.png Graphic file (type png)
 <use ./images/condor_test_out.png>
-Package pdftex.def Info: ./images/condor_test_out.png  used on input line 326.
+Package pdftex.def Info: ./images/condor_test_out.png  used on input line 325.
 (pdftex.def)             Requested size: 483.69687pt x 388.81088pt.
  [6 <./images/condor_q.png> <./images/condor_status_busy.png> <./images/condor_
 test_out.png>]
 <./images/time_condor.png, id=41, 680.5425pt x 255.95625pt>
 File: ./images/time_condor.png Graphic file (type png)
 <use ./images/time_condor.png>
-Package pdftex.def Info: ./images/time_condor.png  used on input line 334.
+Package pdftex.def Info: ./images/time_condor.png  used on input line 333.
 (pdftex.def)             Requested size: 483.69687pt x 181.92157pt.
  [7 <./images/time_condor.png>]
 <./images/docker_hold.png, id=46, 1368.11125pt x 275.0275pt>
 File: ./images/docker_hold.png Graphic file (type png)
 <use ./images/docker_hold.png>
-Package pdftex.def Info: ./images/docker_hold.png  used on input line 443.
+Package pdftex.def Info: ./images/docker_hold.png  used on input line 442.
 (pdftex.def)             Requested size: 483.69687pt x 97.23466pt.
 
 
@@ -798,72 +798,71 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 File: ./images/condor_slot_single.png Graphic file (type png)
 <use ./images/condor_slot_single.png>
 Package pdftex.def Info: ./images/condor_slot_single.png  used on input line 45
-6.
+5.
 (pdftex.def)             Requested size: 483.69687pt x 129.32805pt.
-File: ./images/time_condor.png Graphic file (type png)
-<use ./images/time_condor.png>
-Package pdftex.def Info: ./images/time_condor.png  used on input line 466.
-(pdftex.def)             Requested size: 483.69687pt x 181.92157pt.
- [9 <./images/docker_hold.png> <./images/condor_slot_single.png>]
-<./images/docker_test_out.png, id=54, 839.135pt x 565.11125pt>
-File: ./images/docker_test_out.png Graphic file (type png)
-<use ./images/docker_test_out.png>
-Package pdftex.def Info: ./images/docker_test_out.png  used on input line 507.
-(pdftex.def)             Requested size: 483.69687pt x 325.73837pt.
-
-Overfull \hbox (5.61502pt too wide) in paragraph at lines 515--521
+<./images/docker_time.png, id=51, 834.11626pt x 276.03125pt>
+File: ./images/docker_time.png Graphic file (type png)
+<use ./images/docker_time.png>
+Package pdftex.def Info: ./images/docker_time.png  used on input line 462.
+(pdftex.def)             Requested size: 483.69687pt x 160.06874pt.
+ [9 <./images/docker_hold.png> <./images/condor_slot_single.png> <./images/dock
+er_time.png>]
+Overfull \hbox (5.61502pt too wide) in paragraph at lines 485--491
 \OT1/cmr/m/n/10 (-20) (\OT1/cmtt/l/it/10 https://www.illumina.com/science/techn
 ology/next-generation-sequencing/plan-experiments/read-
  []
 
-[10 <./images/docker_test_out.png>]
-<./images/patient_graph.pdf, id=58, 433.62pt x 289.08pt>
+<./images/patient_graph.pdf, id=55, 433.62pt x 289.08pt>
 File: ./images/patient_graph.pdf Graphic file (type pdf)
 <use ./images/patient_graph.pdf>
-Package pdftex.def Info: ./images/patient_graph.pdf  used on input line 539.
+Package pdftex.def Info: ./images/patient_graph.pdf  used on input line 509.
 (pdftex.def)             Requested size: 386.95897pt x 257.98615pt.
-<./images/cost_graph.pdf, id=59, 433.62pt x 289.08pt>
-File: ./images/cost_graph.pdf Graphic file (type pdf)
-<use ./images/cost_graph.pdf>
-Package pdftex.def Info: ./images/cost_graph.pdf  used on input line 551.
-(pdftex.def)             Requested size: 386.95897pt x 257.98615pt.
-
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[11 <./images/patient_graph.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 570--571
+[10]
+<./images/cost_graph.pdf, id=59, 433.62pt x 289.08pt>
+File: ./images/cost_graph.pdf Graphic file (type pdf)
+<use ./images/cost_graph.pdf>
+Package pdftex.def Info: ./images/cost_graph.pdf  used on input line 521.
+(pdftex.def)             Requested size: 386.95897pt x 257.98615pt.
+ [11 <./images/patient_graph.pdf> <./images/cost_graph.pdf
+
+pdfTeX warning: pdflatex (file ./images/cost_graph.pdf): PDF inclusion: multipl
+e pdfs with page group included in a single page
+>]
+Underfull \hbox (badness 10000) in paragraph at lines 540--541
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 572--573
+Underfull \hbox (badness 10000) in paragraph at lines 542--543
 
  []
 
 
-Overfull \hbox (46.54851pt too wide) in paragraph at lines 577--579
+Overfull \hbox (46.54851pt too wide) in paragraph at lines 547--549
 \OT1/cmtt/l/it/10 https://www.illumina.com/science/technology/next-generation-s
 equencing/plan-experiments/coverage.html 
  []
 
 
-Overfull \hbox (2.97389pt too wide) in paragraph at lines 580--583
+Overfull \hbox (2.97389pt too wide) in paragraph at lines 550--553
 \OT1/cmtt/l/it/10 https://www.illumina.com/science/technology/next-generation-s
 equencing/plan-experiments/read-
  []
 
-[12 <./images/cost_graph.pdf>] [13] (./BDP1_report_pierotti.aux)
+[12] (./BDP1_report_pierotti.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 19304 strings out of 480478
- 390095 string characters out of 5905959
+ 19305 strings out of 480478
+ 390060 string characters out of 5905959
  1015770 words of memory out of 5000000
- 34933 multiletter control sequences out of 15000+600000
- 540107 words of font info for 83 fonts, out of 8000000 for 9000
+ 34926 multiletter control sequences out of 15000+600000
+ 540311 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  59i,7n,83p,898b,1638s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/
@@ -875,10 +874,10 @@ cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr
 ist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/share/texmf-dist/fonts/type1
 /public/cm-super/sfrm1000.pfb></usr/share/texmf-dist/fonts/type1/public/cm-supe
 r/sftt0900.pfb>
-Output written on BDP1_report_pierotti.pdf (13 pages, 725306 bytes).
+Output written on BDP1_report_pierotti.pdf (12 pages, 689576 bytes).
 PDF statistics:
- 164 PDF objects out of 1000 (max. 8388607)
- 74 compressed objects within 1 object stream
+ 159 PDF objects out of 1000 (max. 8388607)
+ 70 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  14936 words of extra memory for PDF output out of 17280 (max. 10000000)
 
