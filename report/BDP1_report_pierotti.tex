@@ -2,21 +2,32 @@
 
 \usepackage{graphicx}
 \usepackage[margin=2cm,a4paper]{geometry}
+\usepackage{lmodern}
 \usepackage{tcolorbox}
 \tcbuselibrary{listings,skins}
 \usepackage{microtype}
 \usepackage[htt]{hyphenat}
 \usepackage{placeins}
 \usepackage{parskip}
+\usepackage{xcolor}
+	\definecolor{keyword}{HTML}{cc241d}
+	\definecolor{string}{HTML}{98971a}
+	\definecolor{comment}{HTML}{928374}
 \usepackage{listings}
-\lstset{
-  language=bash,
-  basicstyle=\small\ttfamily,
-  columns=flexible,
-  breaklines=true,
-  showstringspaces=false,
-  frame=single
-}
+	\lstdefinestyle{default}{%
+	    basicstyle      = \small\ttfamily,
+	    keywordstyle    = \color{keyword},
+	    stringstyle     = \color{string},
+	    commentstyle    = \color{comment}
+	}
+	\lstset{%
+	    language=bash,
+	    style=default,
+	    columns=flexible,
+	    breaklines=true,
+	    showstringspaces=false,
+	    frame=single
+	}
 
 \begin{document}
 
@@ -38,31 +49,31 @@ I used the cloud service provider Amazon Web Services (AWS, \texttt{https://aws.
 Worker Nodes and the Master Node were both built on similar machines.
 For the Master Node, I chose the \texttt{t2.medium} instance type with a 50 Gb SSD as root storage.
 For the Worker Nodes, I chose the \texttt{t2.large} instance type with a 50 Gb SSD as root storage.
-The operating system adopted for both machine types was Ubuntu Server 18.04.4 LTS.
+The operating system adopted for both machine types was Ubuntu Server 18.04.4 LTS\@.
 The Master Node and the Worker Nodes were all instantiated in the same availability zone (\texttt{us-east-1a}) so that they would be able to communicate through private IPv4 addresses.
 The security group for the instances was configured as follows:
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/security-group.png}
 \end{figure}
 
 All the TCP ports were opened to the other members of the same security group since HTCondor daemons use a dynamically assigned port.
 I opened the ICMP port for accepting incoming \texttt{ping} requests for testing purposes.
-Since all the TCP ports were open, there was no need for setting up additional ports for NFS.
+Since all the TCP ports were open, there was no need for setting up additional ports for NFS\@.
 
 \subsection{Configuration of the Master Node}
 The PS1 prompt of the Master Node was changed so to make the node easily identifiable from the command line.
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/master-ps1.png}
 \end{figure}
-\FloatBarrier
+\FloatBarrier%
 
 HTCondor (Thain D., Tannenbaum T., and Livny M., 2005) was then installed with the following commands:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 sudo su
 wget -qO - https://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | apt-key add - # import the gpg key of HTCondor
 echo "deb http://research.cs.wisc.edu/htcondor/ubuntu/8.8/bionic bionic contrib" >> /etc/apt/sources.list # add the repository
@@ -76,7 +87,7 @@ systemctl enable condor
 The correct proceeding of the installation and the start of the \texttt{condor} service where checked with the following commands:
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/condor_installed.png}
 \end{figure}
 
@@ -98,7 +109,7 @@ HOSTALLOW_ADMINISTRATOR = *
 Finally, the \texttt{condor} service was restarted with the following command:
 
 \begin{lstlisting}
-sudo systemctl restart condor
+sudo systemctl restartcondor
 \end{lstlisting}
 
 I set up the NFS server on the Master Node.
@@ -125,26 +136,26 @@ The following line was appended to the NFS configuration file \texttt{/etc/expor
 
 Finally, I set the owner and group of the shared folder to \texttt{nobody:nogroup} and I edited the permissions of the folder so to grant unlimited access to it:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 sudo chown nobody:nogroup /data
 sudo chmod 777 /data
 \end{lstlisting}
 
 The \texttt{/data} folder was exposed to all the Worker Nodes on the address range \texttt{172.31.0.0/16}.
 This configuration does not pose a significant security risk since all the machines belong to the same Virtual Private Cloud (VPC). Only machines instantiated on the same VPC could access the exposed volume.
-Moreover, this configuration grants immediate access to the volume to additional Worker Nodes instantiated in the same VPC.
+Moreover, this configuration grants immediate access to the volume to additional Worker Nodes instantiated in the same VPC\@.
 I created a mock file on the \texttt{/data} folder so to be able to recognize the volume when mounted.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 touch /data/this_is_a_shared_NFS_volume
 \end{lstlisting}
 
 \subsection{Configuration of the Worker Nodes}
-I instantiated on AWS a new t2.large machine with Ubuntu 18.04 LTS.
+I instantiated on AWS a new t2.large machine with Ubuntu 18.04 LTS\@.
 I changed the PS1 prompt so to make the node easily identifiable from the command line.
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/worker-ps1.png}
 \end{figure}
 
@@ -166,7 +177,7 @@ HOSTALLOW_ADMINISTRATOR = *
 I granted to the Worker Node access to the shared NFS volume.
 The following command was issued to install the required packages:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 sudo apt install nfs-common
 \end{lstlisting}
 
@@ -180,13 +191,13 @@ The \texttt{/etc/fstab} file was edited by appending the following line, so that
 I verified that the shared volume was accessible from the Worker Node.
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/nfs_works.png}
 \end{figure}
 
-I installed the application BWA on the Worker Node:
+I installed the BWA application on the Worker Node:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 sudo apt install -y bwa
 \end{lstlisting}
 
@@ -195,7 +206,7 @@ In this way, the Worker Nodes could be easily replicable when more computational
 It would be possible to deploy new Worker Nodes by simply instantiating new virtual machines from the AMI, without the need for manual configuration.
 
 \subsection{Submission of a Test Job to the HTCondor Cluster}
-I instantiated a new Worker Node from the relative AMI.
+I instantiated a new Worker Node from the relative AMI\@.
 Subsequently, I created a new volume through the AWS interface from a snapshot containing test data used during the BDP1 course (\texttt{snap-09ee52d8038fb8094}, BDP1\_2020).
 This snapshot contained NGS reads from 3 different patients.
 Each patient had a folder with around 500 fasta files, with 1000 reads each.
@@ -204,7 +215,7 @@ The \texttt{/etc/fstab} file was updated accordingly and the \texttt{nfs-server}
 Finally, I tested that the new volume was accessible from the Worker Nodes.
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=.8\textwidth]{./images/nfs_bdp_works.png}
 \end{figure}
 
@@ -215,124 +226,38 @@ The index for the hg19 build was already in the volume snapshot, so there was no
 I copied the test fasta files from the shared volume to the home folder of the Master Node to simulate a real workflow.
 I created test job file \texttt{alignment\_test.job}, with the following content:
 
-\begin{lstlisting}
-####################################################
-################### Alignment Test #################
-####################################################
-
-
-########### The program that will be executed #######
-
-Executable = alignment_test.py
-readnum = $(Process)+1
-arguments = read_$INT(readnum).fa
-
-############ Input Sandbox  #########################
-
-Input      = read_$INT(readnum).fa
-transfer_input_files = read_$INT(readnum).fa
-
-###### Output Sandbox ###############################
-
-Log        = read_$INT(readnum).log
-# will contain condor log
-
-Output     = read_$INT(readnum).out
-# will contain the standard output
-
-Error      = read_$INT(readnum).error
-# will contain the standard error
-
-############## condor control variables #############
-
-should_transfer_files = YES
-when_to_transfer_output = ON_EXIT
-
-Universe = vanilla
-
-#####################################################
-
-Queue 10
-\end{lstlisting}
+\lstinputlisting[language=bash]{../condor_setup/alignment_test.job}
 
 The script \texttt{alignment\_test.py} called as executable in \texttt{alignment\_test.job} was the following:
 
-\begin{lstlisting}
-#!/usr/bin/python
-
-import sys,os
-from timeit import default_timer as timer
-
-start = timer()
-dbpath = "/data/BDP1_2020/hg19/"
-dbname = "hg19bwaidx"
-queryname = sys.argv[1]
-out_name = queryname[:-3]
-fafile = queryname
-samfile = out_name + ".sam"
-gzipfile = out_name + ".sam.gz"
-saifile = out_name + ".sai"
-md5file = out_name + ".md5"
-
-print "Input: ", queryname
-
-command = "bwa aln -t 1 " + dbpath + dbname + " " + fafile + " > " + saifile
-print "launching command: " , command
-os.system(command)
-
-command = "bwa samse -n 10 " + dbpath + dbname + " " + saifile + " " + fafile + " > " + samfile
-print "launching command: " , command
-os.system(command)
-
-# Checksums
-print "Creating md5sums"
-os.system("md5sum " + samfile + " > " + md5file)
-
-print "gzipping out text file"
-command = "gzip " + samfile
-print "launching command: " , command
-os.system(command)
-
-# Transfer files to shared volume and clean the Output Sandbox
-print "Moving files and clearing the Output Sandbox"
-os.system("mv "+ gzipfile + " /data/outputs/"+ gzipfile)
-os.system("mv "+ md5file + " /data/outputs/"+ md5file)
-os.system("rm "+ saifile)
-
-execution_time = timer() - start
-
-print "Total execution time: " + str(execution_time)
-print "exiting"
-
-exit(0)
-\end{lstlisting}
+\lstinputlisting[language=python]{../condor_setup/alignment_test.py}
 
 Ten instances of this test job were run on the cluster.
 The following outputs of \texttt{condor\_q} and \texttt{condor\_status} were recorded after submission:
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/condor_q.png}
     \includegraphics[width=\textwidth]{./images/condor_status_busy.png}
 \end{figure}
-\FloatBarrier
+\FloatBarrier%
 
-The cluster was able to successfully complete the task.
+The cluster was able to complete the task.
 The test job produced the following output files:
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/condor_test_out.png}
 \end{figure}
-\FloatBarrier
+\FloatBarrier%
 
 The time required to complete the task on a single fasta file ranged from 62.77 to 422.54 seconds, with an average of 227.7 seconds.
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/time_condor.png}
 \end{figure}
-\FloatBarrier
+\FloatBarrier%
 
 \subsection{Data Management Model}
 The general data management model followed was that of transferring the executables and the input fasta files using the HTCondor Input Sandbox.
@@ -346,11 +271,11 @@ The aligned reads will instead be compressed and put in the shared volume, to av
 
 \section{Use of Docker Containers for the Task}
 Docker (\texttt{https://www.docker.com/}) is a container management system that can be used to easily ship and deploy applications on a variety of platforms.
-In this section I repeated the same task already accomplished, but encapsulating the BWA application in a purposes-built Docker container.
+In this section, I repeated the same task already accomplished but this time encapsulating the BWA application in a purpose-built Docker container.
 HTCondor was still used to orchestrate the execution of jobs, taking advantage of the \texttt{docker} universe.
 
 \subsection{Configuration of the Nodes}
-I created a virtual machine from the Worker Node AMI that I developped in the previous steps.
+I created a virtual machine from the Worker Node AMI that I developed in the previous steps.
 I installed Docker on it and I added the current user to the \texttt{docker} group:
 \begin{lstlisting}
 sudo apt install docker.io
@@ -369,7 +294,7 @@ DOCKER_VOLUME_DIR_BDP1_DATA = /data
 DOCKER_MOUNT_VOLUMES = BDP1_DATA
 \end{lstlisting}
 
-I created a new AMI from this virtual machine, so to be able to replicate the Worker Node instances as required by the application.
+I created a new AMI from this virtual machine to be able to replicate the Worker Node instances as required by the application.
 The Master Node did not need any additional configuration.
 
 \subsection{Creation of a Containerized version of the Application}
@@ -391,59 +316,20 @@ The file \texttt{alignment\_test.py} mentioned in the Dockerfile was the same sc
 
 \subsection{Execution of the Test Job}
 I modified the test job file in order to use the \texttt{docker} universe instead of the \texttt{vanilla} universe.
-I also added the name of to the Docker image to be used for the task (\texttt{saulpierotti/bwa}) and the path of the application executable inside the container.
+I also added the name of the Docker image to be used for the task (\texttt{saulpierotti/bwa}) and the path of the application executable inside the container.
 
-\begin{lstlisting}
-####################################################
-############# Alignment Test Docker ################
-####################################################
-
-
-########### The program that will be executed #######
-
-docker_image = saulpierotti/bwa
-Executable = /alignment_test.py
-readnum = $(Process)+1
-arguments = read_$INT(readnum).fa
-
-############ Input Sandbox  #########################
-
-Input      = read_$INT(readnum).fa
-transfer_input_files = read_$INT(readnum).fa
-
-###### Output Sandbox ###############################
-
-Log        = read_$INT(readnum).log
-# will contain condor log
-
-Output     = read_$INT(readnum).out
-# will contain the standard output
-
-Error      = read_$INT(readnum).error
-# will contain the standard error
-
-############## condor control variables #############
-
-should_transfer_files = YES
-when_to_transfer_output = ON_EXIT
-
-Universe = docker
-
-#####################################################
-
-Queue 10
-\end{lstlisting}
+\lstinputlisting[language=bash]{../docker/alignment_test_docker.job}
 
 The number of Worker Nodes in the cluster was increased to two, so to make it identical to the cluster used for the non-containerized version of the application.
 The job was run on the HTCondor cluster, but after some time it was put on hold due to the exceeding of memory limits (the workers were AWS \texttt{t2.large} machines with 8 Gb of RAM).
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/docker_hold.png}
 \end{figure}
-\FloatBarrier
+\FloatBarrier%
 
-In order to solve the issue, I changed the memory reservation policy for the slots in the Worker Nodes such that one slot would use all the available memory and CPU, istead of sharing evenly the resources among the two slots.
+To solve the issue, I changed the memory reservation policy for the slots in the Worker Nodes such that one slot would use all the available memory and CPU, instead of sharing evenly the resources among the two slots.
 This was done by appending the following line to the file \texttt{/etc/condor/condor\_config}:
 \begin{lstlisting}
 SLOT_TYPE_1 = cpus=100%, ram=100%
@@ -451,36 +337,36 @@ NUM_SLOTS_TYPE_1 = 1
 \end{lstlisting}
 From the Master Node, the command \texttt{condor\_status} detected the new allocation policy:
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/condor_slot_single.png}
 \end{figure}
-\FloatBarrier
+\FloatBarrier%
 
 The job ran as planned with this new configuration, producing the expected output files in 131.8 seconds on average.
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=\textwidth]{./images/docker_time.png}
 \end{figure}
-\FloatBarrier
+\FloatBarrier%
 
 \subsection{Comparison of the Containerized Application with the Native Application}
 The use of Docker containers can potentially offer greater flexibility in modifying the application or its configuration.
-With the native implementation changing the application involves creating a new AMI, terminating the Worker Node instances of the cluster and instanciating new Worker Nodes from the new AMI.
-In a real-world scenario it could be possible to specify in the job description itself the packages to be installed or modified in the Worker Nodes, but this apporach is nonetheless cumbersome and could be prohibited by the administrative policies of the cluster.
+With the native implementation changing the application involves creating a new AMI, terminating the Worker Node instances of the cluster, and instantiating new Worker Nodes from the new AMI\@.
+In a real-world scenario, it could be possible to specify in the job description itself the packages to be installed or modified in the Worker Nodes, but this approach is nonetheless cumbersome and could be prohibited by the administrative policies of the cluster.
 With Docker containers, changing the application involves only changing the name of the Docker image to be used.
 However, the main drawback of the containerized application is increased resource requirements.
 This point emerged even in my small test job, where the memory available to the slots was not sufficient for executing the task.
 The increased resource consumption of the containerized application can be attributed to the virtualization overhead.
-This increased overhead translates in either a less performant application (less jobs can be run in a given amount of time) or a more expensive infrastructure (for instance I may have choosen to use an instance type with more memory).
+This increased overhead translates in either a less performant application (fewer jobs can be run in a given amount of time) or a more expensive infrastructure (for instance I may have chosen to use an instance type with more memory).
 One way to partially mitigate the virtualization overhead is to include in the Docker image only the components that are strictly required by the application.
 Using as a base the smallest possible image is another viable solution (for instance I could have used Alpine Linux instead of Ubuntu as a base image).
 
-The raw performaces on the test job of the native and containerized application are not directly comparable, since for the native version each core of the Worker Nodes was assigned to a different slot and the available memory was split equally among them, while for the containerized version all the available resources were collected in a single slot.
+The raw performances on the test job of the native and containerized application are not directly comparable, since for the native version each core of the Worker Nodes was assigned to a different slot and the available memory was split equally among them, while for the containerized version all the available resources were collected in a single slot.
 In the containerized version the running time of the application is thus smaller because the slots used were more performant than the ones used for the native application.
 It is important to note also that with the cluster configuration used for the native application two jobs can be run at the same time in each Worker Node, while with the configuration used for the containerized application only one job at a time can be run in each node.
 
 \section{Expected Costs}
-A plausible non-trivial use-case that can be addressed using the HTCondor cluster developed in Section 1 is the alignment of a large number of fasta files deriving from a Next-Generation Sequencing (NGS) run to the human reference genome assembly hg19.
+A plausible non-trivial use-case that can be addressed using the HTCondor cluster developed in Section 1 (native application) is the alignment of a large number of fasta files deriving from a Next-Generation Sequencing (NGS) run to the human reference genome assembly hg19.
 
 The sequencing platform manufacturer Illumina recommends aiming for a coverage of at least 30x in a human Whole-Genome Sequencing (WGS) experiment (\texttt{https://www.illumina.com/science/technology/next-generation-sequencing/plan-experiments/coverage.html}).
 Given that the human genome has a size of about 3.3 billion base pairs, aiming for a 30x coverage would result in a raw output from the sequencer of at least 99 billion base pairs.
@@ -501,14 +387,14 @@ A more feasible approach would involve replicating the Worker Nodes to have more
 This is possible since the alignment of a read is independent of the alignment of other reads, and so the task can be parallelized effectively.
 For instance, the task could be completed in less than nine days using a cluster of 1 Master Node and 100 Worker Nodes.
 This will result in a cluster with a capacity of more than 3 patients per month.
-In a real use-case, the number of worker nodes in the cluster would be dimensioned relatively to the expected workload and to the maximum acceptable processing time.
-The following graphs shows the number of patients that can be completely processed as a function of time in a cluster containing 2 (orange) and 100 (blue) worker nodes.
+In a real use-case, the number of Worker Nodes in the cluster would be dimensioned relative to the expected workload and to the maximum acceptable processing time.
+The following graph shows the number of patients that can be completely processed as a function of time in a cluster containing 2 (orange) and 100 (blue) worker nodes.
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=.8\textwidth]{./images/patient_graph.pdf}
 \end{figure}
-\FloatBarrier
+\FloatBarrier%
 
 To date (May 2020) the \texttt{t2.large} machine costs \$ 0.0928 per hour, and the cluster will require 100 of them for the proposed infrastructure.
 The \texttt{t2.medium} machine costs \$ 0.0464 per hour, and the cluster will require just 1 of them for the Master Node.
@@ -517,11 +403,11 @@ A 1 Tb disk can be used for storing the hg19 genome and index, as well as the re
 The following graph depicts the costs associated with running the cluster as a function of time.
 
 \begin{figure}[!h]
-    \center
+    \center%
     \includegraphics[width=.8\textwidth]{./images/cost_graph.pdf}
 \end{figure}
 
-\FloatBarrier
+\FloatBarrier%
 
 Note that costs for data movements in and out of the AWS system have been omitted.
 Moreover, in a real use-case scenario, a strict security policy for dealing with medical data should be also enforced, according to local regulations.
@@ -537,9 +423,9 @@ Instead of using a shared NFS volume mounted on the Master Node, it could be mor
 This would reduce the strain on the vital Master Node and make the data more easily accessible from outside of the cluster.
 
 \section{References}
-Li H. and Durbin R. (2009) Fast and accurate short read alignment with Burrows-Wheeler Transform. Bioinformatics, 25:1754-60. [PMID: 19451168]\\
+Li H. and Durbin R. (2009) Fast and accurate short read alignment with Burrows-Wheeler Transform. Bioinformatics, 25:1754--60. [PMID:\@ 19451168]\\
 
-Douglas Thain, Todd Tannenbaum, and Miron Livny, "Distributed Computing in Practice: The Condor Experience" Concurrency and Computation: Practice and Experience, Vol. 17, No. 2-4, pages 323-356, February-April, 2005.\\
+Douglas Thain, Todd Tannenbaum, and Miron Livny, `Distributed Computing in Practice: The Condor Experience' Concurrency and Computation: Practice and Experience, Vol. 17, No. 2--4, pages 323--356, February-April, 2005.\\
 
 Docker:\\
 \texttt{https://www.docker.com/}
