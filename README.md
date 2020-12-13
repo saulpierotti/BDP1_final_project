@@ -1,2 +1,10 @@
-# BDP1 final project
-Final project for the big data processing infrastructures part 1 course of the Bioinformatics master's degree at the University of Bologna
+![preview](preview/BDP1_report_pierotti-0.png)
+![preview](preview/BDP1_report_pierotti-1.png)
+![preview](preview/BDP1_report_pierotti-2.png)
+![preview](preview/BDP1_report_pierotti-3.png)
+![preview](preview/BDP1_report_pierotti-4.png)
+![preview](preview/BDP1_report_pierotti-5.png)
+![preview](preview/BDP1_report_pierotti-6.png)
+![preview](preview/BDP1_report_pierotti-7.png)
+![preview](preview/BDP1_report_pierotti-8.png)
+![preview](preview/BDP1_report_pierotti-9.png)
